@@ -1,0 +1,63 @@
+.project-settings-modal {
+  max-width: 600px;
+}
+
+.settings-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.project-info {
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.project-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #475569;
+}
+
+.project-info strong {
+  color: #1e293b;
+}
+
+.warning-message {
+  padding: 12px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  color: #92400e;
+  font-size: 14px;
+  text-align: center;
+}
+
+.btn-archive {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  border: 2px solid #ef4444;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-archive:hover:not(:disabled) {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-archive:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

@@ -1,0 +1,60 @@
+.kanban-header {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  padding: 20px 24px;
+  overflow-x: auto;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  min-width: 120px;
+}
+
+.stat-icon {
+  font-size: 24px;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.stat-card.priority-high .stat-icon {
+  filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3));
+}
+
+@media (max-width: 768px) {
+  .stats-bar {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .stat-card {
+    min-width: 100px;
+  }
+}
+
