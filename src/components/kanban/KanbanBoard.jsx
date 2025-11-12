@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useKanban } from '../../context/KanbanContext';
 import { useProject } from '../../context/ProjectContext';
 import { useAuth } from '../../context/AuthContext';
@@ -17,8 +17,27 @@ const KanbanBoard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [initialColumn, setInitialColumn] = useState(null);
+  const [searchQueries, setSearchQueries] = useState({});
 
   const canWrite = hasPermission('write');
+
+  const handleSearchChange = (columnId, value) => {
+    setSearchQueries({ ...searchQueries, [columnId]: value });
+  };
+
+  const filterTasks = (tasks, searchQuery) => {
+    if (!searchQuery || !searchQuery.trim()) return tasks;
+    
+    const query = searchQuery.toLowerCase().trim();
+    return tasks.filter(task => {
+      const titleMatch = task.title?.toLowerCase().includes(query);
+      const descriptionMatch = task.description?.toLowerCase().includes(query);
+      const createdByMatch = task.createdBy?.toLowerCase().includes(query);
+      const assignedToMatch = task.assignedTo?.toLowerCase().includes(query);
+      
+      return titleMatch || descriptionMatch || createdByMatch || assignedToMatch;
+    });
+  };
 
   const handleDragEnd = async (result) => {
     if (!result.destination || !canWrite) return;
@@ -72,6 +91,8 @@ const KanbanBoard = () => {
         <div className="kanban-board">
           {columns.map((column) => {
             const columnTasks = getTasksByColumn(column.id);
+            const searchQuery = searchQueries[column.id] || '';
+            const filteredTasks = filterTasks(columnTasks, searchQuery);
             
             return (
               <div key={column.id} className="kanban-column">
@@ -81,7 +102,7 @@ const KanbanBoard = () => {
                 >
                   <div className="column-title-section">
                     <h3 className="column-title">{column.title}</h3>
-                    <span className="task-count">{columnTasks.length}</span>
+                    <span className="task-count">{filteredTasks.length}</span>
                   </div>
                   
                   {canWrite && (
@@ -95,6 +116,17 @@ const KanbanBoard = () => {
                   )}
                 </div>
 
+                <div className="column-search">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Buscar en esta columna..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(column.id, e.target.value)}
+                    className="column-search-input"
+                  />
+                </div>
+
                 <Droppable droppableId={column.id} isDropDisabled={!canWrite}>
                   {(provided, snapshot) => (
                     <div
@@ -102,7 +134,7 @@ const KanbanBoard = () => {
                       {...provided.droppableProps}
                       className={`column-content ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
                     >
-                      {columnTasks.map((task, index) => (
+                      {filteredTasks.map((task, index) => (
                         <Draggable
                           key={task.id}
                           draggableId={task.id}
@@ -114,6 +146,12 @@ const KanbanBoard = () => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
+                              style={{
+                                ...provided.draggableProps.style,
+                                ...(snapshot.isDragging && {
+                                  opacity: 0.5,
+                                }),
+                              }}
                             >
                               <TaskCard
                                 task={task}
@@ -127,6 +165,12 @@ const KanbanBoard = () => {
                         </Draggable>
                       ))}
                       {provided.placeholder}
+                      
+                      {filteredTasks.length === 0 && columnTasks.length > 0 && (
+                        <div className="column-empty">
+                          <p>No se encontraron tareas</p>
+                        </div>
+                      )}
                       
                       {columnTasks.length === 0 && (
                         <div className="column-empty">

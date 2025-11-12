@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Edit2, Clock, User, Calendar, MessageCircle, Tag } from 'lucide-react';
+import { X, Edit2, Clock, User, Calendar, MessageCircle, Tag, RotateCcw } from 'lucide-react';
 import { useKanban } from '../../context/KanbanContext';
 import { useAuth } from '../../context/AuthContext';
 import { useProject } from '../../context/ProjectContext';
@@ -7,9 +7,9 @@ import { TASK_TYPES, TASK_PRIORITIES } from '../../utils/roles';
 import './TaskDetailModal.css';
 
 const TaskDetailModal = ({ task: initialTask, onClose, onEdit }) => {
-  const { addComment, deleteComment, tasks } = useKanban();
+  const { addComment, deleteComment, tasks, updateTask } = useKanban();
   const { currentUser } = useAuth();
-  const { hasPermission } = useProject();
+  const { hasPermission, currentProject } = useProject();
   const [commentText, setCommentText] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -19,6 +19,35 @@ const TaskDetailModal = ({ task: initialTask, onClose, onEdit }) => {
   const canEdit = hasPermission('write');
   const taskType = TASK_TYPES[task.type] || TASK_TYPES.general;
   const taskPriority = TASK_PRIORITIES[task.priority] || TASK_PRIORITIES.medium;
+
+  const canDelete = () => {
+    if (!currentUser) return false;
+    // Solo administradores globales pueden eliminar
+    return currentUser.role === 'admin';
+  };
+
+  const canResetHours = () => {
+    if (!currentUser || !currentProject) return false;
+    // Verificar si es admin global
+    if (currentUser.role === 'admin') return true;
+    // Verificar si es project manager (rol global pm)
+    if (currentUser.role === 'pm') return true;
+    // Verificar si es admin del proyecto
+    const projectRole = currentProject.roles?.[currentUser.username];
+    if (projectRole === 'admin') return true;
+    return false;
+  };
+
+  const handleResetHours = async () => {
+    if (!canResetHours()) return;
+    
+    try {
+      await updateTask(task.id, { hours: 0 });
+    } catch (error) {
+      console.error('Error al resetear horas:', error);
+      alert('Error al resetear las horas');
+    }
+  };
 
   const handleAddComment = async (e) => {
     e.preventDefault();
@@ -95,6 +124,15 @@ const TaskDetailModal = ({ task: initialTask, onClose, onEdit }) => {
                 <div className="meta-info-item">
                   <Clock size={16} />
                   <span>{task.hours} horas</span>
+                  {canResetHours() && (
+                    <button
+                      className="btn-reset-hours-detail"
+                      onClick={handleResetHours}
+                      title="Resetear horas a 0"
+                    >
+                      <RotateCcw size={14} />
+                    </button>
+                  )}
                 </div>
               )}
               

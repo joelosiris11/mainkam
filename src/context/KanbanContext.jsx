@@ -192,19 +192,21 @@ export const KanbanProvider = ({ children }) => {
   };
 
   const getStats = () => {
-    const totalTasks = tasks.length;
+    // Excluir tareas del backlog de todas las estadísticas
+    const activeTasks = tasks.filter(t => t.status !== 'backlog');
+    const totalTasks = activeTasks.length;
     const completedColumn = columns.find(c => c.id === 'completed');
     const completedTasks = completedColumn 
-      ? tasks.filter(t => t.status === 'completed').length 
+      ? activeTasks.filter(t => t.status === 'completed').length 
       : 0;
 
     const tasksByPriority = {
-      high: tasks.filter(t => t.priority === 'high').length,
-      medium: tasks.filter(t => t.priority === 'medium').length,
-      low: tasks.filter(t => t.priority === 'low').length
+      high: activeTasks.filter(t => t.priority === 'high').length,
+      medium: activeTasks.filter(t => t.priority === 'medium').length,
+      low: activeTasks.filter(t => t.priority === 'low').length
     };
 
-    const totalHours = tasks.reduce((sum, task) => sum + (task.hours || 0), 0);
+    const totalHours = activeTasks.reduce((sum, task) => sum + (task.hours || 0), 0);
 
     return {
       total: totalTasks,

@@ -167,7 +167,7 @@ const MembersManager = ({ onClose }) => {
 
           {!isOwner && (
             <div className="info-message">
-              Solo el dueño del proyecto puede gestionar miembros
+              Solo el dueño del proyecto o un administrador puede gestionar miembros
             </div>
           )}
         </div>

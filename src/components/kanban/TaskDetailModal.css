@@ -116,6 +116,28 @@
   flex-shrink: 0;
 }
 
+.btn-reset-hours-detail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin-left: 8px;
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #ef4444;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.btn-reset-hours-detail:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
 .tags-section {
   display: flex;
   align-items: center;

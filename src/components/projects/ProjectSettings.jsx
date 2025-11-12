@@ -133,7 +133,7 @@ const ProjectSettings = ({ onClose }) => {
 
           {!isOwner && (
             <div className="warning-message">
-              Solo el dueño del proyecto puede modificar la configuración
+              Solo el dueño del proyecto o un administrador puede modificar la configuración
             </div>
           )}
 

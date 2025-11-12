@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { projectsService } from '../services/firebaseService';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../config/firebase';
 import { useAuth } from './AuthContext';
 import { storage, STORAGE_KEYS } from '../utils/storage';
 import { checkPermission } from '../utils/permissions';
@@ -34,9 +36,18 @@ export const ProjectProvider = ({ children }) => {
   useEffect(() => {
     if (!currentUser) return;
 
-    const unsubscribe = projectsService.onProjectsSnapshot(
-      currentUser.username,
-      (updatedProjects) => {
+    // Si es admin global, escuchar TODOS los proyectos
+    let unsubscribe;
+    if (currentUser.role === 'admin') {
+      const projectsRef = collection(db, 'projects');
+      const q = query(projectsRef, where('isArchived', '==', false));
+      
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        const updatedProjects = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
         const owned = updatedProjects.filter(p => p.owner === currentUser.username);
         const shared = updatedProjects.filter(p => p.owner !== currentUser.username);
         
@@ -45,8 +56,22 @@ export const ProjectProvider = ({ children }) => {
           shared,
           all: updatedProjects
         });
-      }
-    );
+      });
+    } else {
+      unsubscribe = projectsService.onProjectsSnapshot(
+        currentUser.username,
+        (updatedProjects) => {
+          const owned = updatedProjects.filter(p => p.owner === currentUser.username);
+          const shared = updatedProjects.filter(p => p.owner !== currentUser.username);
+          
+          setProjects({
+            owned,
+            shared,
+            all: updatedProjects
+          });
+        }
+      );
+    }
 
     return () => unsubscribe();
   }, [currentUser]);
@@ -56,7 +81,21 @@ export const ProjectProvider = ({ children }) => {
     
     setLoading(true);
     try {
-      const userProjects = await projectsService.getUserProjects(currentUser.username);
+      // Si es admin global, cargar TODOS los proyectos
+      let userProjects;
+      if (currentUser.role === 'admin') {
+        const allProjects = await projectsService.getAll();
+        const owned = allProjects.filter(p => p.owner === currentUser.username);
+        const shared = allProjects.filter(p => p.owner !== currentUser.username && !p.isArchived);
+        userProjects = {
+          owned,
+          shared,
+          all: allProjects.filter(p => !p.isArchived)
+        };
+      } else {
+        userProjects = await projectsService.getUserProjects(currentUser.username);
+      }
+      
       setProjects(userProjects);
 
       // Restaurar último proyecto si existe
@@ -161,17 +200,28 @@ export const ProjectProvider = ({ children }) => {
   const hasPermission = (permission) => {
     if (!currentProject || !currentUser) return false;
     
+    // Los administradores globales tienen todos los permisos
+    if (currentUser.role === 'admin') return true;
+    
     const userRole = currentProject.roles[currentUser.username];
     return checkPermission(userRole, permission);
   };
 
   const isProjectOwner = () => {
     if (!currentProject || !currentUser) return false;
+    
+    // Los administradores globales se consideran owners de todos los proyectos
+    if (currentUser.role === 'admin') return true;
+    
     return currentProject.owner === currentUser.username;
   };
 
   const getUserRole = () => {
     if (!currentProject || !currentUser) return null;
+    
+    // Los administradores globales siempre tienen rol 'admin' en cualquier proyecto
+    if (currentUser.role === 'admin') return 'admin';
+    
     return currentProject.roles[currentUser.username];
   };
 

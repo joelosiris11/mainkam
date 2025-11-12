@@ -2,14 +2,22 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useKanban } from '../../context/KanbanContext';
 import { useAuth } from '../../context/AuthContext';
+import { useProject } from '../../context/ProjectContext';
 import { TASK_TYPES, TASK_PRIORITIES } from '../../utils/roles';
 import './TaskModal.css';
 
 const TaskModal = ({ task, initialColumn, onClose }) => {
   const { addTask, updateTask, deleteTask, columns } = useKanban();
   const { currentUser, users } = useAuth();
+  const { currentProject } = useProject();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const canDelete = () => {
+    if (!currentUser) return false;
+    // Solo administradores globales pueden eliminar
+    return currentUser.role === 'admin';
+  };
   
   const [formData, setFormData] = useState({
     title: task?.title || '',
@@ -50,6 +58,11 @@ const TaskModal = ({ task, initialColumn, onClose }) => {
 
   const handleDelete = async () => {
     if (!task) return;
+    
+    if (!canDelete()) {
+      alert('Solo los administradores pueden eliminar tareas');
+      return;
+    }
     
     if (window.confirm('¿Estás seguro de eliminar esta tarea?')) {
       setLoading(true);
@@ -236,7 +249,7 @@ const TaskModal = ({ task, initialColumn, onClose }) => {
           )}
 
           <div className="modal-actions">
-            {task && (
+            {task && canDelete() && (
               <button
                 type="button"
                 className="btn-delete"

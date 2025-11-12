@@ -1,6 +1,9 @@
 .members-modal {
   max-width: 600px;
-  max-height: 80vh;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .members-content {
@@ -8,6 +11,10 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
 }
 
 .add-member-section {
@@ -93,22 +100,44 @@
   border-color: #cbd5e1;
 }
 
+.members-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .members-list h3 {
   font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  color: var(--md-on-surface);
   margin: 0 0 16px 0;
+  letter-spacing: 0.15px;
+  position: sticky;
+  top: 0;
+  background: var(--md-surface);
+  padding-bottom: 8px;
+  z-index: 1;
 }
 
 .member-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  background: var(--md-surface-variant);
+  border-radius: var(--md-radius-medium);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   margin-bottom: 8px;
+  transition: all var(--md-duration-short4) var(--md-transition-standard);
+  box-shadow: var(--md-elevation-1);
+}
+
+.member-item:hover {
+  box-shadow: var(--md-elevation-2);
+  transform: translateY(-1px);
+  background: var(--md-surface);
 }
 
 .member-info {
@@ -196,5 +225,29 @@
   color: #075985;
   font-size: 14px;
   text-align: center;
+}
+
+/* Scrollbar personalizado para el contenido del modal */
+.members-content::-webkit-scrollbar,
+.members-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.members-content::-webkit-scrollbar-track,
+.members-list::-webkit-scrollbar-track {
+  background: var(--md-surface-variant);
+  border-radius: var(--md-radius-small);
+}
+
+.members-content::-webkit-scrollbar-thumb,
+.members-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--md-radius-small);
+  transition: background var(--md-duration-short4) var(--md-transition-standard);
+}
+
+.members-content::-webkit-scrollbar-thumb:hover,
+.members-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 

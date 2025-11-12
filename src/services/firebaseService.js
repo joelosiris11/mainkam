@@ -479,10 +479,53 @@ export const tasksService = {
   }
 };
 
+// ============ SIDEBAR LINKS SERVICE ============
+export const sidebarLinksService = {
+  async getLinks(projectId) {
+    try {
+      const linksRef = doc(db, 'projects', projectId, 'settings', 'sidebarLinks');
+      const linksSnap = await getDoc(linksRef);
+      
+      if (linksSnap.exists()) {
+        return linksSnap.data();
+      }
+      return { archivos: '', git: '' };
+    } catch (error) {
+      console.error('Error al obtener links:', error);
+      return { archivos: '', git: '' };
+    }
+  },
+
+  async updateLinks(projectId, links) {
+    try {
+      const linksRef = doc(db, 'projects', projectId, 'settings', 'sidebarLinks');
+      await setDoc(linksRef, {
+        ...links,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (error) {
+      console.error('Error al actualizar links:', error);
+      throw error;
+    }
+  },
+
+  onLinksSnapshot(projectId, callback) {
+    const linksRef = doc(db, 'projects', projectId, 'settings', 'sidebarLinks');
+    return onSnapshot(linksRef, (doc) => {
+      if (doc.exists()) {
+        callback(doc.data());
+      } else {
+        callback({ archivos: '', git: '' });
+      }
+    });
+  }
+};
+
 export default {
   users: usersService,
   projects: projectsService,
   columns: columnsService,
-  tasks: tasksService
+  tasks: tasksService,
+  sidebarLinks: sidebarLinksService
 };
 

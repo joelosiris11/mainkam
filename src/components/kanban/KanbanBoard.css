@@ -2,6 +2,8 @@
   flex: 1;
   overflow: hidden;
   padding: 24px;
+  background: var(--md-background);
+  animation: fadeIn var(--md-duration-medium2) var(--md-transition-decelerate);
 }
 
 .kanban-board {
@@ -10,90 +12,238 @@
   height: 100%;
   overflow-x: auto;
   padding-bottom: 20px;
+  scroll-behavior: smooth;
 }
 
 .kanban-column {
   flex: 0 0 320px;
   display: flex;
   flex-direction: column;
-  background: #f8fafc;
-  border-radius: 12px;
+  background: var(--md-surface-variant);
+  border-radius: var(--md-radius-extra-large);
   overflow: hidden;
+  box-shadow: var(--md-elevation-2);
+  transition: all var(--md-duration-medium2) var(--md-transition-standard);
+  animation: slideUp var(--md-duration-medium3) var(--md-transition-decelerate);
+  animation-fill-mode: both;
+  position: relative;
+  isolation: isolate;
+}
+
+.kanban-column:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.kanban-column:nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.kanban-column:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.kanban-column:nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.kanban-column:nth-child(5) {
+  animation-delay: 200ms;
+}
+
+.kanban-column:hover {
+  box-shadow: var(--md-elevation-4);
+  transform: translateY(-2px);
 }
 
 .column-header {
-  padding: 16px;
-  background: white;
-  border-bottom: 3px solid var(--column-color);
+  padding: 20px 16px;
+  background: var(--md-surface);
+  border-bottom: 4px solid var(--column-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: var(--md-elevation-1);
+  position: relative;
+}
+
+.column-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--column-color);
+  transform-origin: left;
+  transition: transform var(--md-duration-medium2) var(--md-transition-standard);
+}
+
+.kanban-column:hover .column-header::after {
+  transform: scaleX(1.1);
+}
+
+.column-search {
+  padding: 12px 16px;
+  background: var(--md-surface);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background var(--md-duration-short4) var(--md-transition-standard);
+}
+
+.column-search:focus-within {
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.column-search svg {
+  color: var(--md-on-surface-variant);
+  flex-shrink: 0;
+  transition: color var(--md-duration-short4) var(--md-transition-standard);
+}
+
+.column-search:focus-within svg {
+  color: var(--md-primary);
+}
+
+.column-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  color: var(--md-on-surface);
+  background: transparent;
+  transition: all var(--md-duration-short4) var(--md-transition-standard);
+}
+
+.column-search-input::placeholder {
+  color: var(--md-on-surface-variant);
+  font-weight: 400;
+}
+
+.column-search-input:focus {
+  color: var(--md-on-surface);
 }
 
 .column-title-section {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .column-title {
   font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  color: var(--md-on-surface);
   margin: 0;
+  letter-spacing: 0.15px;
 }
 
 .task-count {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 8px;
-  background: #e2e8f0;
-  border-radius: 12px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  background: var(--md-surface-variant);
+  border-radius: var(--md-radius-full);
   font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 500;
+  color: var(--md-on-surface-variant);
+  transition: all var(--md-duration-short4) var(--md-transition-standard);
+  box-shadow: var(--md-elevation-1);
+}
+
+.kanban-column:hover .task-count {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  transform: scale(1.1);
+  box-shadow: var(--md-elevation-2);
 }
 
 .btn-add-task {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: transparent;
   border: none;
-  color: #64748b;
+  color: var(--md-on-surface-variant);
   cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s;
+  border-radius: var(--md-radius-medium);
+  transition: all var(--md-duration-short4) var(--md-transition-standard);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-add-task::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width var(--md-duration-medium2), height var(--md-duration-medium2);
+}
+
+.btn-add-task:hover::before {
+  width: 100px;
+  height: 100px;
 }
 
 .btn-add-task:hover {
-  background: #f1f5f9;
+  background: rgba(99, 102, 241, 0.08);
   color: var(--column-color);
+  transform: scale(1.1) rotate(90deg);
+}
+
+.btn-add-task:active {
+  transform: scale(0.95) rotate(90deg);
 }
 
 .column-content {
   flex: 1;
-  padding: 12px;
+  padding: 16px;
   overflow-y: auto;
+  overflow-x: visible;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition: background var(--md-duration-medium2) var(--md-transition-standard);
+  position: relative;
+  min-height: 0;
+}
+
+.column-content > div {
+  position: relative;
+}
+
+/* Asegurar que el elemento durante el drag sea visible */
+.column-content > div[data-rbd-draggable-context-id] {
+  position: relative;
 }
 
 .column-content.dragging-over {
-  background: #e0e7ff;
+  background: rgba(99, 102, 241, 0.04);
+  border-radius: var(--md-radius-large);
 }
 
 .column-empty {
-  padding: 32px 16px;
+  padding: 40px 20px;
   text-align: center;
-  color: #94a3b8;
+  color: var(--md-on-surface-variant);
   font-size: 14px;
+  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  animation: fadeIn var(--md-duration-medium2) var(--md-transition-decelerate);
 }
 
 .kanban-empty {
@@ -101,8 +251,11 @@
   align-items: center;
   justify-content: center;
   height: 400px;
-  color: #64748b;
+  color: var(--md-on-surface-variant);
   font-size: 16px;
+  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  animation: fadeIn var(--md-duration-medium2) var(--md-transition-decelerate);
 }
 
 @media (max-width: 768px) {
@@ -114,4 +267,3 @@
     flex: 0 0 280px;
   }
 }
-

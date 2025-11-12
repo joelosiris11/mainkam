@@ -53,7 +53,9 @@ const BurndownChart = ({ compact = false }) => {
   const chartData = useMemo(() => {
     if (!tasks || tasks.length === 0 || !startDate) return [];
 
-    const totalHours = tasks.reduce((sum, t) => sum + (t.hours || 0), 0);
+    // Excluir tareas del backlog
+    const activeTasks = tasks.filter(t => t.status !== 'backlog');
+    const totalHours = activeTasks.reduce((sum, t) => sum + (t.hours || 0), 0);
     
     const projectStartDate = new Date(startDate + 'T00:00:00');
     const today = new Date();
@@ -78,7 +80,7 @@ const BurndownChart = ({ compact = false }) => {
       const isFutureDate = currentDate > today;
       
       // Para fechas futuras, solo mostramos la línea ideal
-      const hoursCompleted = isFutureDate ? null : tasks
+      const hoursCompleted = isFutureDate ? null : activeTasks
         .filter(t => {
           if (t.status !== 'completed') return false;
           const completedDate = t.completedDate?.toDate 
@@ -107,13 +109,15 @@ const BurndownChart = ({ compact = false }) => {
     return data;
   }, [tasks, startDate, endDate]);
 
-  const totalHours = useMemo(() => 
-    tasks.reduce((sum, t) => sum + (t.hours || 0), 0), [tasks]
-  );
+  const totalHours = useMemo(() => {
+    const activeTasks = tasks.filter(t => t.status !== 'backlog');
+    return activeTasks.reduce((sum, t) => sum + (t.hours || 0), 0);
+  }, [tasks]);
   
-  const completedHours = useMemo(() =>
-    tasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.hours || 0), 0), [tasks]
-  );
+  const completedHours = useMemo(() => {
+    const activeTasks = tasks.filter(t => t.status !== 'backlog');
+    return activeTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.hours || 0), 0);
+  }, [tasks]);
 
   if (!chartData || chartData.length === 0) {
     return (

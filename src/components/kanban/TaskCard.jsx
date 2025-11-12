@@ -1,8 +1,38 @@
-import { Clock, User, MessageCircle } from 'lucide-react';
+import { Clock, User, MessageCircle, RotateCcw } from 'lucide-react';
 import { TASK_TYPES, TASK_PRIORITIES } from '../../utils/roles';
+import { useAuth } from '../../context/AuthContext';
+import { useProject } from '../../context/ProjectContext';
+import { useKanban } from '../../context/KanbanContext';
 import './TaskCard.css';
 
 const TaskCard = ({ task, onEdit, onView, isDragging, canEdit }) => {
+  const { currentUser } = useAuth();
+  const { currentProject } = useProject();
+  const { updateTask } = useKanban();
+
+  const canResetHours = () => {
+    if (!currentUser || !currentProject) return false;
+    // Verificar si es admin global
+    if (currentUser.role === 'admin') return true;
+    // Verificar si es project manager (rol global pm)
+    if (currentUser.role === 'pm') return true;
+    // Verificar si es admin del proyecto
+    const projectRole = currentProject.roles?.[currentUser.username];
+    if (projectRole === 'admin') return true;
+    return false;
+  };
+
+  const handleResetHours = async (e) => {
+    e.stopPropagation();
+    if (!canResetHours()) return;
+    
+    try {
+      await updateTask(task.id, { hours: 0 });
+    } catch (error) {
+      console.error('Error al resetear horas:', error);
+      alert('Error al resetear las horas');
+    }
+  };
   const taskType = TASK_TYPES[task.type] || TASK_TYPES.general;
   const taskPriority = TASK_PRIORITIES[task.priority] || TASK_PRIORITIES.medium;
 
@@ -51,6 +81,15 @@ const TaskCard = ({ task, onEdit, onView, isDragging, canEdit }) => {
             <div className="meta-item" title={`${task.hours} horas estimadas`}>
               <Clock size={14} />
               <span>{task.hours}h</span>
+              {canResetHours() && (
+                <button
+                  className="btn-reset-hours"
+                  onClick={handleResetHours}
+                  title="Resetear horas a 0"
+                >
+                  <RotateCcw size={12} />
+                </button>
+              )}
             </div>
           )}
           
